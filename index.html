@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Reasoning Test</title>
+<title>The Brain League | Reasoning Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -195,6 +195,20 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
   .stats-card { grid-column:auto; }
 }
 
+
+.league-link { display:inline-flex; align-items:center; gap:8px; color:var(--ink); border:1px solid var(--line); border-radius:999px; padding:9px 14px; text-decoration:none; font-weight:700; }
+.league-link:hover { border-color:var(--accent); color:var(--accent); }
+.result-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.rank-card { display:grid; grid-template-columns:52px 1fr auto; gap:12px; align-items:center; padding:13px 0; border-bottom:1px solid var(--line); }
+.rank-card:last-child { border-bottom:0; }
+.rank-no { font:700 1.2rem "Space Grotesk",sans-serif; color:var(--accent); }
+.rank-name { font-weight:700; }
+.rank-meta { color:var(--muted); font-size:.82rem; }
+.rank-score { text-align:right; font:700 1.2rem "Space Grotesk",sans-serif; }
+.pill { display:inline-block; padding:4px 9px; border:1px solid var(--line); border-radius:99px; color:var(--muted); font-size:.76rem; }
+.notice { border:1px solid rgba(255,95,31,.35); background:rgba(255,95,31,.08); border-radius:12px; padding:13px 15px; color:#f0d4c8; }
+.review-hidden { display:none; }
+
 </style>
 </head>
 <body>
@@ -276,6 +290,63 @@ var Q=[
 Q.forEach(function(q){var p=q[2].map(function(_,i){return i}),i,j,t;for(i=p.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=p[i];p[i]=p[j];p[j]=t}q[3]=p.indexOf(q[3]);q[2]=p.map(function(i){return q[2][i]})});
 var SECS=["Number series","Applied numeracy","Verbal logic","Pattern recognition","Spatial reasoning"],LIMIT=55*60,L="ABCDEF",DIFF=[1,1,1,2,2,2,2,2,3,3, 1,2,2,1,1,2,2,3,3, 1,2,1,2,1,1,2,2,3, 1,2,1,1,1,2,2,2,3,3,3,3, 1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,3];
 var app=document.getElementById("app"),ans,cur,endAt,tm,who="",startedAt,usedSec;
+// Paste your deployed Google Apps Script Web App URL here after deployment.
+var API_URL = "https://script.google.com/macros/s/AKfycbwaU_1YAb7baHnnbRT6pFqPGh6UMgIsQzDygvg2Dwv9HTnWzpyYmyn-2HAjVE7XEfxt6A/exec";
+var PLAYER_KEY = "brainLeaguePlayer_v1";
+var PLAYER = loadPlayer();
+var currentAttemptId = "";
+var challengeClosed = false;
+var lastResult = null;
+function loadPlayer(){
+  try {
+    var p=JSON.parse(localStorage.getItem(PLAYER_KEY)||"null");
+    if(p && p.id) return p;
+  } catch(e){}
+  var id="PLR-"+Math.random().toString(36).slice(2,6).toUpperCase()+"-"+Date.now().toString(36).toUpperCase().slice(-4);
+  var fresh={id:id,nickname:""};
+  try{localStorage.setItem(PLAYER_KEY,JSON.stringify(fresh))}catch(e){}
+  return fresh;
+}
+function savePlayer(){
+  PLAYER.nickname=who;
+  try{localStorage.setItem(PLAYER_KEY,JSON.stringify(PLAYER))}catch(e){}
+}
+function apiReady(){return API_URL && API_URL.indexOf("https://script.google.com/macros/s/")===0}
+function jsonp(params, callback){
+  if(!apiReady()){callback({ok:false,error:"The results connection has not been configured yet."});return}
+  var cb="brainLeagueCb"+Date.now()+Math.floor(Math.random()*10000);
+  var script=document.createElement("script"),done=false;
+  window[cb]=function(data){done=true;callback(data);cleanup()};
+  function cleanup(){try{delete window[cb]}catch(e){window[cb]=undefined}if(script.parentNode)script.parentNode.removeChild(script)}
+  params.callback=cb;
+  script.onerror=function(){if(!done){callback({ok:false,error:"Could not reach the results service."});cleanup()}};
+  script.src=API_URL+"?"+Object.keys(params).map(function(k){return encodeURIComponent(k)+"="+encodeURIComponent(params[k])}).join("&");
+  document.body.appendChild(script);
+}
+function sendSubmission(payload, callback){
+  if(!apiReady()){callback(false,"Add your Apps Script URL to index.html first.");return}
+  // A simple text/plain POST avoids a browser preflight. Confirmation is checked separately.
+  fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)})
+    .then(function(){setTimeout(function(){jsonp({action:"status",playerId:PLAYER.id,submissionId:payload.submissionId},function(r){callback(!!(r&&r.ok&&r.saved),r&&r.message||"Your result has been sent. Please check the leaderboard shortly.")})},1400)})
+    .catch(function(){callback(false,"Your result could not be confirmed. Please try again when connected.")});
+}
+function openLeaderboard(){
+  jsonp({action:"leaderboard"},function(data){
+    if(!data||!data.ok){alert((data&&data.error)||"Could not load the leaderboard.");return}
+    renderLeaderboard(data);
+  });
+}
+function renderLeaderboard(data){
+  var rows=data.rows||[],out="";
+  rows.forEach(function(r,i){
+    var medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
+    out+='<div class="rank-card"><div class="rank-no">'+medal+'</div><div><div class="rank-name">'+esc(r.nickname)+'</div><div class="rank-meta">'+r.attempts+' attempt'+(r.attempts===1?'':'s')+' · '+esc(r.date||'')+'</div></div><div class="rank-score">'+r.score+'/60<div class="rank-meta">'+r.percentage+'%</div></div></div>';
+  });
+  if(!out)out='<p class="muted">No completed attempts yet. Be the first to make the board!</p>';
+  app.innerHTML='<div class="stack"><div class="row"><div><div class="eyebrow">The Brain League</div><h1>Hall of Fame 🏆</h1></div><button class="btn ghost" id="back">← Back</button></div><div class="card"><div class="row"><h2>Current standings</h2><span class="pill">Best score counts</span></div>'+out+'<p class="legend" style="margin-top:15px">Ranked by highest score. Ties are broken by the quickest completion time. Only nicknames and summary scores appear here.</p></div><p class="legend">Last refreshed: '+new Date().toLocaleString("en-GB")+'</p></div>';
+  document.getElementById("back").onclick=function(){intro()};
+}
+
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function fmt(s){s=Math.max(0,s);return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2)}
 function today(){return new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}
@@ -303,20 +374,20 @@ function intro(){
   '<section class="intro-hero">'+
     '<div class="eyebrow">A little brain workout · 60 questions · 55 minutes</div>'+
     '<h1>Ready to give your brain a good workout?</h1>'+
-    '<p class="intro-copy">Welcome to the office brain games. A bit of logic, a splash of numbers, a few visual puzzles and a healthy dose of “wait… let me think”. No pressure, no leaderboard drama. Just you, your brain and 60 chances to surprise yourself.</p>'+
+    '<p class="intro-copy">Welcome to the office brain games. A bit of logic, a splash of numbers, a few visual puzzles and a healthy dose of “wait… let me think”. No pressure, just you, your brain and 60 chances to surprise yourself.</p>'+
     '<div class="intro-tags"><span>🧠 Think sharp</span><span>⚡ Trust your instincts</span><span>🎯 Have a go</span><span>☕ Best enjoyed with a coffee</span></div>'+
-    '<button class="btn" id="go">Let’s get this brain party started →</button>'+
+    '<div class="result-actions"><button class="btn" id="go">Let’s get this brain party started →</button><button class="btn ghost" id="showLeague">🏆 View the Brain League</button></div>'+
   '</section>'+
   '<div class="intro-bottom">'+
     '<div class="card stack"><h2>How to play</h2>'+
       '<p>60 questions across numerical reasoning, logical deduction, pattern recognition and spatial reasoning. You have <strong>55 minutes</strong>, but take a breath and think things through.</p>'+
       '<p>Every correct answer earns a point. Wrong answers do not lose marks, so have a go at everything. You can jump between questions, revisit answers and leave the tricky ones for later.</p>'+
       '<div class="name-wrap"><label class="f" for="nm">What should we call you? <span class="muted">(optional)</span></label><input id="nm" type="text" autocomplete="name" placeholder="Your name or nickname"></div>'+
-      '<p class="legend" style="margin:0">Your answers stay in this browser and are not sent anywhere. This is a fun practice and development exercise, not a validated or standardised assessment. Please do not use it for recruitment or selection decisions.</p>'+
+      '<p class="legend" style="margin:0">Your nickname and completed-attempt summary are recorded for the Brain League. This is a fun reasoning challenge, not a validated or standardised assessment, and should not be used for recruitment or selection decisions.</p>'+
     '</div>'+
-    '<aside class="intro-note"><strong>THE ONLY RULE?</strong><p>Enjoy it. Some questions will feel easy, others might make you question your life choices. That is all part of the fun.</p><p class="legend">No calculators. Rough paper is welcome. Guessing is absolutely allowed. And remember, it is a game, not a verdict on your intelligence.</p></aside>'+
+    '<aside class="intro-note"><strong>THE ONLY RULE?</strong><p>Enjoy it. Some questions will feel easy, others might make you question your life choices. That is all part of the fun.</p><p class="legend">Take your time, trust your thinking and enjoy the challenge. Rough paper is welcome. And remember, it is a game, not a verdict on your intelligence.</p></aside>'+
   '</div></div>';
-  document.getElementById("go").onclick=function(){who=document.getElementById("nm").value.trim();ans=new Array(Q.length).fill(-1);cur=0;startedAt=Date.now();endAt=startedAt+LIMIT*1000;tm=setInterval(tick,500);render()};
+  document.getElementById("nm").value=PLAYER.nickname||"";document.getElementById("go").onclick=function(){who=document.getElementById("nm").value.trim()||"Anonymous Player";savePlayer();ans=new Array(Q.length).fill(-1);cur=0;startedAt=Date.now();endAt=startedAt+LIMIT*1000;usedSec=undefined;currentAttemptId="ATT-"+Date.now()+"-"+Math.random().toString(36).slice(2,8);tm=setInterval(tick,500);render()};document.getElementById("showLeague").onclick=openLeaderboard;
 }
 
 function tick(){
@@ -360,27 +431,39 @@ function finish(){
   clearInterval(tm);tm=null;usedSec=Math.min(LIMIT,Math.round((Date.now()-startedAt)/1000));results();window.scrollTo(0,0)
 }
 function results(){
-  var tot=0,by={},rv="",dd={1:[0,0],2:[0,0],3:[0,0]};
+  var tot=0,by={},dd={1:[0,0],2:[0,0],3:[0,0]};
   SECS.forEach(function(s){by[s]=[0,0]});
-  Q.forEach(function(q,i){by[q[0]][1]++;dd[DIFF[i]][1]++;var ok=ans[i]===q[3];if(ok){tot++;by[q[0]][0]++;dd[DIFF[i]][0]++}
-    rv+='<div class="rv"><p class="legend">Question '+(i+1)+' · '+q[0]+'</p><p>'+esc(q[1]).replace(/\n+/g," ")+'</p>'+(q[5]?figH(q[5]):'')+(q[2][0].charAt(0)==="~"?optsH(q):'')+
-    '<p>'+(ok?'<span class="ok">Correct</span>':'<span class="bad">'+(ans[i]<0?'Not answered':'Incorrect')+'</span>')+
-    ' · Your answer: '+(ans[i]<0?'none':T(q,ans[i]))+(ok?'':' · Correct answer: '+T(q,q[3]))+'</p><p class="legend">'+esc(q[4])+'</p></div>'});
-  var pct=Math.round(tot/Q.length*100),lvl=tot>=42?"Strong":tot>=22?"Solid":"Developing",dh="";[1,2,3].forEach(function(k){var a=dd[k];dh+='<div class="sr"><div class="row"><strong>'+["Easier","Medium","Harder"][k-1]+'</strong><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+(a[0]/a[1]*100)+'%"></i></div></div>'});
-  var sh="";SECS.forEach(function(s){var a=by[s];sh+='<div class="sr"><div class="row"><strong>'+s+'</strong><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+(a[0]/a[1]*100)+'%"></i></div></div>'});
-  app.innerHTML='<div class="stack"><h1>Your results</h1><p class="muted">'+(who?esc(who)+' · ':'')+today()+' · Time used '+fmt(usedSec)+' of '+fmt(LIMIT)+'</p>'+
-  '<div class="card"><div class="big">'+tot+' <span class="muted" style="font-size:1.3rem">/ '+Q.length+'</span></div><p style="margin:8px 0 0">'+pct+'% correct. Overall band: <strong>'+lvl+'</strong>.</p></div>'+
-  '<div class="card"><h2 style="margin-bottom:8px">By reasoning type</h2>'+sh+'</div><div class="card"><h2 style="margin-bottom:8px">By question difficulty</h2>'+dh+'</div>'+
-  '<p class="legend">Bands are rough guides (0 to 21 Developing, 22 to 41 Solid, 42 to 60 Strong) and are not measured against population norms. This is not an IQ score. Questions range from easier to harder, so the breakdown by difficulty and by reasoning type says more than the total.</p>'+
-  '<div class="card"><h2 style="margin-bottom:4px">Answer review</h2>'+rv+'</div>'+
-  '<div class="row no-print"><button class="btn ghost" id="rt">Retake</button><span><button class="btn ghost" id="cp">Copy summary</button> <button class="btn" id="pr">Print or save as PDF</button></span></div><p class="legend" id="msg" role="status"></p></div>';
-  document.getElementById("pr").onclick=function(){window.print()};
-  document.getElementById("rt").onclick=function(){usedSec=undefined;intro();window.scrollTo(0,0)};
-  document.getElementById("cp").onclick=function(){
-    var t="Reasoning test"+(who?" – "+who:"")+" – "+today()+"\nTotal: "+tot+"/"+Q.length+" ("+pct+"%, "+lvl+")\n"+SECS.map(function(s){return s+": "+by[s][0]+"/"+by[s][1]}).join("\n")+"\nBy difficulty: "+[1,2,3].map(function(k){return ["Easier","Medium","Harder"][k-1]+" "+dd[k][0]+"/"+dd[k][1]}).join(", ")+"\nTime used: "+fmt(usedSec);
-    var m=document.getElementById("msg"),bad=function(){m.textContent="Copying was blocked. Use Print or save as PDF instead."};
-    try{navigator.clipboard.writeText(t).then(function(){m.textContent="Summary copied."},bad)}catch(e){bad()}
-  };
+  Q.forEach(function(q,i){by[q[0]][1]++;dd[DIFF[i]][1]++;var ok=ans[i]===q[3];if(ok){tot++;by[q[0]][0]++;dd[DIFF[i]][0]++}});
+  var pct=Math.round(tot/Q.length*100),lvl=tot>=42?"Strong":tot>=22?"Solid":"Developing",sh="",dh="";
+  SECS.forEach(function(s){var a=by[s];sh+='<div class="sr"><div class="row"><strong>'+s+'</strong><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar"><i style="width:'+(a[0]/a[1]*100)+'%"></i></div></div>'});
+  [1,2,3].forEach(function(k){var a=dd[k];dh+='<div class="sr"><div class="row"><strong>'+["Easier","Medium","Harder"][k-1]+'</strong><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar"><i style="width:'+(a[0]/a[1]*100)+'%"></i></div></div>'});
+  lastResult={score:tot,percentage:pct,by:by,seconds:usedSec};
+  var payload={action:"submit",submissionId:currentAttemptId,playerId:PLAYER.id,nickname:who,score:tot,total:Q.length,percentage:pct,seconds:usedSec,completedAt:new Date().toISOString(),categories:by};
+  var submitStatus="Sending your result to the Brain League…";
+  app.innerHTML='<div class="stack"><div class="eyebrow">Challenge complete</div><h1>That’s a wrap, '+esc(who)+'! 🎉</h1><p class="muted">'+today()+' · Time used '+fmt(usedSec)+' of '+fmt(LIMIT)+'</p>'+
+  '<div class="card"><div class="big">'+tot+' <span class="muted" style="font-size:1.3rem">/ '+Q.length+'</span></div><p style="margin:8px 0 0">'+pct+'% correct. Overall band: <strong>'+lvl+'</strong>.</p><span class="pill">Attempt being recorded</span></div>'+
+  '<div class="card"><h2 style="margin-bottom:8px">Your reasoning breakdown</h2>'+sh+'</div><div class="card"><h2 style="margin-bottom:8px">By question difficulty</h2>'+dh+'</div>'+
+  '<div class="notice"><strong>Answer review is taking a little breather.</strong><br>You\'ll be able to review the correct answers and explanations once the organiser closes the challenge. Your score is available now.</div>'+
+  '<div class="card"><h2>Your next move</h2><p>Fancy seeing where you stand? Check out the Brain League. You can also have another go whenever you like. Your best score is what counts.</p><div class="result-actions"><button class="btn" id="league">🏆 View the Brain League</button><button class="btn ghost" id="retake">Take it again</button><button class="btn ghost" id="copy">Copy my summary</button><button class="btn ghost" id="print">Print / save PDF</button></div><p class="legend" id="sendMsg" role="status">'+submitStatus+'</p></div>'+
+  '<div class="card"><h2>Answer review</h2><p class="muted" id="reviewState">Checking whether the challenge has closed…</p><div id="reviewContent" class="review-hidden"></div></div>'+
+  '<p class="legend">This is an informal reasoning challenge, not an IQ test or validated psychometric assessment. Results describe performance on these questions only.</p></div>';
+  sendSubmission(payload,function(ok,msg){var el=document.getElementById("sendMsg");if(el)el.textContent=ok?"Result recorded successfully.":msg});
+  document.getElementById("league").onclick=openLeaderboard;
+  document.getElementById("retake").onclick=function(){usedSec=undefined;ans=null;intro();window.scrollTo(0,0)};
+  document.getElementById("print").onclick=function(){window.print()};
+  document.getElementById("copy").onclick=function(){var t="Brain League - "+who+"\nScore: "+tot+"/"+Q.length+" ("+pct+"%)\n"+SECS.map(function(s){return s+": "+by[s][0]+"/"+by[s][1]}).join("\n")+"\nTime: "+fmt(usedSec);try{navigator.clipboard.writeText(t).then(function(){document.getElementById("sendMsg").textContent="Summary copied."})}catch(e){}};
+  jsonp({action:"status",playerId:PLAYER.id},function(state){
+    challengeClosed=!!(state&&state.closed);
+    var st=document.getElementById("reviewState"),box=document.getElementById("reviewContent");
+    if(!st||!box)return;
+    if(challengeClosed){st.textContent="The challenge is closed. Your answer review is now available on this device.";box.className="";box.innerHTML=buildReview();}
+    else{st.textContent="Answer explanations will unlock when the organiser closes the challenge."}
+  });
+  function buildReview(){
+    var rv="";
+    Q.forEach(function(q,i){var ok=ans[i]===q[3];rv+='<div class="rv"><p class="legend">Question '+(i+1)+' · '+q[0]+'</p><p>'+esc(q[1])+'</p>'+(q[5]?figH(q[5]):'')+(q[2][0].charAt(0)==="~"?optsH(q):'')+'<p>'+(ok?'<span class="ok">Correct</span>':'<span class="bad">'+(ans[i]<0?'Not answered':'Incorrect')+'</span>')+' · Your answer: '+(ans[i]<0?'none':T(q,ans[i]))+' · Correct answer: '+T(q,q[3])+'</p><p class="legend">'+esc(q[4])+'</p></div>'}
+    );return rv;
+  }
 }
 intro();
 })();
