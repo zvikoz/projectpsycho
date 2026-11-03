@@ -382,12 +382,34 @@ function intro(){
     '<div class="card stack"><h2>How to play</h2>'+
       '<p>60 questions across numerical reasoning, logical deduction, pattern recognition and spatial reasoning. You have <strong>55 minutes</strong>, but take a breath and think things through.</p>'+
       '<p>Every correct answer earns a point. Wrong answers do not lose marks, so have a go at everything. You can jump between questions, revisit answers and leave the tricky ones for later.</p>'+
-      '<div class="name-wrap"><label class="f" for="nm">What should we call you? <span class="muted">(optional)</span></label><input id="nm" type="text" autocomplete="name" placeholder="Your name or nickname"></div>'+
+      '<div class="name-wrap"><label class="f" for="nm">What should we call you? <span class="muted">(required)</span></label><input id="nm" type="text" autocomplete="nickname" placeholder="Your name or nickname" required aria-required="true" aria-describedby="nmErr"><div class="err" id="nmErr" role="alert" aria-live="polite"></div></div>'+
       '<p class="legend" style="margin:0">Your nickname and completed-attempt summary are recorded for the Brain League. This is a fun reasoning challenge, not a validated or standardised assessment, and should not be used for recruitment or selection decisions.</p>'+
     '</div>'+
     '<aside class="intro-note"><strong>THE ONLY RULE?</strong><p>Enjoy it. Some questions will feel easy, others might make you question your life choices. That is all part of the fun.</p><p class="legend">Take your time, trust your thinking and enjoy the challenge. Rough paper is welcome. And remember, it is a game, not a verdict on your intelligence.</p></aside>'+
   '</div></div>';
-  document.getElementById("nm").value=PLAYER.nickname||"";document.getElementById("go").onclick=function(){who=document.getElementById("nm").value.trim()||"Anonymous Player";savePlayer();ans=new Array(Q.length).fill(-1);cur=0;startedAt=Date.now();endAt=startedAt+LIMIT*1000;usedSec=undefined;currentAttemptId="ATT-"+Date.now()+"-"+Math.random().toString(36).slice(2,8);tm=setInterval(tick,500);render()};document.getElementById("showLeague").onclick=openLeaderboard;
+  var nameInput=document.getElementById("nm"),nameError=document.getElementById("nmErr"),startButton=document.getElementById("go");
+  nameInput.value=PLAYER.nickname||"";
+  function startTest(){
+    var nickname=nameInput.value.trim();
+    if(!nickname){
+      nameError.textContent="Please enter a nickname before starting the test.";
+      nameInput.setAttribute("aria-invalid","true");
+      nameInput.focus();
+      return;
+    }
+    nameError.textContent="";
+    nameInput.removeAttribute("aria-invalid");
+    who=nickname;savePlayer();ans=new Array(Q.length).fill(-1);cur=0;startedAt=Date.now();endAt=startedAt+LIMIT*1000;usedSec=undefined;currentAttemptId="ATT-"+Date.now()+"-"+Math.random().toString(36).slice(2,8);tm=setInterval(tick,500);render();
+  }
+  startButton.onclick=startTest;
+  nameInput.addEventListener("input",function(){
+    if(nameInput.value.trim()){
+      nameError.textContent="";
+      nameInput.removeAttribute("aria-invalid");
+    }
+  });
+  nameInput.addEventListener("keydown",function(e){if(e.key==="Enter")startTest()});
+  document.getElementById("showLeague").onclick=openLeaderboard;
 }
 
 function tick(){
