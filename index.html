@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reasoning Test</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#EEF2F4;--surface:#FFFFFF;--ink:#13222C;--muted:#5A6B76;--line:#CFD9DE;
+  --accent:#0E6B6F;--accent-ink:#FFFFFF;--track:#DCE5E9;--ok:#1B7A43;--bad:#B3261E;--warn:#B25E09;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1A21;--surface:#16252E;--ink:#E7EEF1;--muted:#93A5AF;--line:#2A3C47;
+    --accent:#4FB8BC;--accent-ink:#06191B;--track:#25363F;--ok:#74D49A;--bad:#F2B8B5;--warn:#F0B35E;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1A21;--surface:#16252E;--ink:#E7EEF1;--muted:#93A5AF;--line:#2A3C47;
+  --accent:#4FB8BC;--accent-ink:#06191B;--track:#25363F;--ok:#74D49A;--bad:#F2B8B5;--warn:#F0B35E;color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:680px;margin:0 auto;padding:20px 16px 56px}
+h1,h2{font-family:"IBM Plex Serif",Georgia,"Times New Roman",serif;font-weight:600;line-height:1.2;margin:0}
+h1{font-size:1.9rem}h2{font-size:1.3rem}
+p{margin:0 0 12px}
+.muted,.legend{color:var(--muted)}.legend{font-size:.85rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.stack>*+*{margin-top:16px}
+label.f{display:block;font-weight:500;margin-bottom:6px}
+input[type=text]{width:100%;padding:11px 12px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:12px 20px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.timer{font:600 1.15rem "IBM Plex Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--warn)}
+.sec{font-size:.9rem;font-weight:600;color:var(--accent);margin-bottom:6px}
+.qt{font:500 1.15rem/1.5 "IBM Plex Serif",Georgia,serif;margin-bottom:16px;white-space:pre-line}
+.opts{display:grid;gap:10px}
+.opts button{text-align:left;padding:12px 14px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;display:flex;gap:12px}
+.opts button b{min-width:1.2em;color:var(--muted)}
+.opts button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opts button[aria-pressed=true] b{color:var(--accent-ink)}
+.fig{margin-bottom:16px;display:flex;flex-wrap:wrap;gap:8px}
+.fig.m{display:grid;grid-template-columns:repeat(3,76px);justify-content:center}
+.fc{width:56px;height:56px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center}
+.fig.m .fc{width:76px;height:76px}
+.fc svg{width:100%;height:100%}
+.fc.q{border-style:dashed;font:600 1.5rem "IBM Plex Serif",serif;color:var(--muted)}
+.lt{position:absolute;left:4px;top:1px;font-size:.7rem;color:var(--muted)}
+.opts.v{grid-template-columns:repeat(3,1fr)}
+.opts.v button{flex-direction:column;align-items:center;gap:2px}
+.opts.v svg{width:72px;height:72px}
+.nav{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.nav button{padding:8px 0;font-size:.85rem;font-weight:600;background:var(--bg);color:var(--muted);border:1px solid var(--line);border-radius:6px}
+.nav button.a{background:var(--track);color:var(--ink)}
+.nav button.c{border:2px solid var(--accent);color:var(--ink)}
+.big{font:600 3rem/1 "IBM Plex Serif",Georgia,serif}
+.bar{height:10px;background:var(--track);border-radius:5px;margin:8px 0 4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.sr{padding:12px 0;border-top:1px solid var(--line)}
+.sr:first-of-type{border-top:0}
+.rv{padding:14px 0;border-top:1px solid var(--line)}
+.rv .ok{color:var(--ok);font-weight:600}.rv .bad{color:var(--bad);font-weight:600}
+.rv p{margin:0 0 4px}
+.err{color:var(--bad);font-size:.9rem;min-height:1.2em}
+@media print{body{background:#fff;color:#000}.no-print{display:none!important}.card{border:0;padding:0}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+(function(){
+function X(s,n){return Array(n).fill(s).join("+")}
+function O(s,n){return "~"+X(s,n)}
+function T(q,i){var t=q[2][i];return t.charAt(0)==="~"?"Option "+L[i]:esc(t)}
+function vis(sp){var it=sp.split("+"),n=it.length,w=60/n,o="";it.forEach(function(p,i){var a=p.split(","),k=a[0],r=Math.min([10,16,22][+a[3]],w/2-2),x=w*i+w/2,y=30,h=r*.8,d,at='fill="'+(a[1]==="o"?"none":"currentColor")+'"'+(a[1]==="g"?' fill-opacity=".3"':"")+' stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" transform="rotate('+a[2]+' '+x+' 30)'+(a[4]==="1"?' translate('+2*x+' 0) scale(-1 1)':'')+'"';
+if(k==="c")d='<circle cx="'+x+'" cy="30" r="'+r+'" '+at+'/>';
+else if(k==="s")d='<rect x="'+(x-r)+'" y="'+(30-r)+'" width="'+2*r+'" height="'+2*r+'" '+at+'/>';
+else{var P=k==="t"?[[x,y-r],[x+r,y+h],[x-r,y+h]]:k==="d"?[[x,y-r],[x+r,y],[x,y+r],[x-r,y]]:k==="l"?[[x-.6*r,y-r],[x-.1*r,y-r],[x-.1*r,y+.5*r],[x+.7*r,y+.5*r],[x+.7*r,y+r],[x-.6*r,y+r]]:[[x,y-r],[x+.7*r,y],[x+.25*r,y],[x+.25*r,y+r],[x-.25*r,y+r],[x-.25*r,y],[x-.7*r,y]];d='<polygon points="'+P.map(function(z){return z.join(",")}).join(" ")+'" '+at+'/>'}
+o+=d});return '<svg viewBox="0 0 60 60" aria-hidden="true">'+o+'</svg>'}
+function figH(f){return '<div class="fig '+(f.length===9?'m':'s')+'">'+f.map(function(s){return s==="?"?'<div class="fc q">?</div>':'<div class="fc">'+vis(s)+'</div>'}).join("")+'</div>'}
+function optsH(q){return '<div class="fig s">'+q[2].map(function(t,i){return '<div class="fc" style="position:relative">'+vis(t.slice(1))+'<span class="lt">'+L[i]+'</span></div>'}).join("")+'</div>'}
+var Q=[
+["Number series","2, 5, 8, 11, ?",["13","14","15","16"],1,"Add 3 each time."],
+["Number series","3, 6, 12, 24, ?",["36","42","48","30"],2,"Each term doubles."],
+["Number series","1, 4, 9, 16, 25, ?",["30","36","34","49"],1,"These are square numbers. The next is 6² = 36."],
+["Number series","2, 3, 5, 8, 12, ?",["15","16","17","18"],2,"The differences grow by one (1, 2, 3, 4), so add 5."],
+["Number series","4, 9, 19, 39, ?",["79","78","59","69"],0,"Double the previous term and add 1."],
+["Number series","5, 6, 8, 12, 20, ?",["28","36","32","40"],1,"The differences double (1, 2, 4, 8), so add 16."],
+["Number series","1, 2, 6, 24, 120, ?",["600","240","720","840"],2,"Multiply by 2, 3, 4, 5, then 6."],
+["Number series","2, 6, 12, 20, 30, ?",["40","44","42","48"],2,"The differences rise by 2 (4, 6, 8, 10), so add 12 to reach 42."],
+["Number series","1, 2, 5, 16, 65, ?",["261","325","326","330"],2,"Multiply by 1, 2, 3, 4, then 5, adding 1 each time: 65 × 5 + 1 = 326."],
+["Number series","1, 4, 27, 256, ?",["625","3125","1024","3256"],1,"Each term is n raised to the power n, so the fifth is 5⁵ = 3125."],
+["Applied numeracy","After a 20% discount, a printer costs USD 80. What was its original price?",["USD 96","USD 100","USD 104","USD 120"],1,"USD 80 is 80% of the original, so 80 ÷ 0.8 = 100."],
+["Applied numeracy","Machine A packs 12 boxes an hour and Machine B packs 8 an hour. Working together, how long do they need to pack 100 boxes?",["6 hours","4 hours","5 hours","8 hours"],2,"Together they pack 20 boxes an hour, so 100 ÷ 20 = 5 hours."],
+["Applied numeracy","Of 250 invoices, 40% are paid immediately. Of those still unpaid, one third are settled the following week. How many remain unpaid after that?",["100","50","150","83"],0,"40% of 250 is 100 paid, leaving 150. One third of 150 is 50, leaving 100."],
+["Applied numeracy","The mean of five numbers is 14. Four of them are 10, 12, 15 and 18. What is the fifth?",["13","16","14","15"],3,"The total must be 5 × 14 = 70. The four known numbers sum to 55, so the fifth is 15."],
+["Applied numeracy","A vehicle covers 90 km in 1.5 hours. At the same speed, how far does it travel in 2.5 hours?",["160 km","135 km","150 km","175 km"],2,"Speed is 60 km/h, so 2.5 hours gives 150 km."],
+["Applied numeracy","A loan of USD 2,000 carries 10% interest, compounded annually. How much is owed after two years if nothing is repaid?",["USD 2,200","USD 2,400","USD 2,440","USD 2,420"],3,"Year one: 2,000 × 1.1 = 2,200. Year two: 2,200 × 1.1 = 2,420. Simple interest would give 2,400."],
+["Applied numeracy","A price rises by 25% and then falls by 20%. What is the net change from the original price?",["No change","5% increase","5% decrease","2.5% decrease"],0,"1.25 × 0.8 = 1.00, so the price ends exactly where it started."],
+["Applied numeracy","Two pipes can fill a tank in 6 hours and 12 hours respectively, while a drain empties a full tank in 8 hours. With all three open, how long does an empty tank take to fill?",["4 hours","8 hours","6 hours","10 hours"],1,"Rates per hour: 1/6 + 1/12 − 1/8 = 4/24 + 2/24 − 3/24 = 1/8, so 8 hours."],
+["Applied numeracy","Finance and audit staff are in the ratio 3 : 2. After four audit staff leave, the ratio becomes 3 : 1. How many staff were there originally?",["25","15","20","30"],2,"Let the numbers be 3k and 2k. Then 3k ÷ (2k − 4) = 3, so k = 4, giving 12 + 8 = 20 staff."],
+["Verbal logic","All auditors are accountants. Some accountants are lecturers.\n\nWhich statement must be true?",["Every auditor is an accountant","All lecturers are auditors","Some auditors are lecturers","No lecturer is an auditor"],0,"Only the first follows from the premises. The others may be true but are not guaranteed."],
+["Verbal logic","If it rains, the match is postponed. The match was not postponed.\n\nWhat follows?",["It rained","It did not rain","The match was played in the rain","Nothing can be concluded"],1,"If rain guarantees postponement, then no postponement means there was no rain."],
+["Verbal logic","Only staff holding a badge are able to enter the vault. Tariro entered the vault.\n\nDoes Tariro hold a badge?",["Yes, definitely","No, definitely not","Cannot be determined"],0,"Entry requires a badge, so anyone who entered must hold one."],
+["Verbal logic","Every report that Naledi reviews is approved. This report was approved.\n\nMust Naledi have reviewed it?",["Yes, definitely","No, definitely not","Cannot be determined"],2,"Reports can be approved without Naledi’s review. The statement only runs one way."],
+["Verbal logic","Ruvimbo is taller than Tatenda. Farai is shorter than Tatenda. Chipo is taller than Ruvimbo.\n\nWho is the shortest?",["Ruvimbo","Tatenda","Chipo","Farai"],3,"Chipo > Ruvimbo > Tatenda > Farai, so Farai is the shortest."],
+["Verbal logic","Thermometer is to temperature as barometer is to…",["Humidity","Wind","Pressure","Rainfall"],2,"A barometer measures atmospheric pressure."],
+["Verbal logic","Four invoices (P, Q, R, S) are processed one after another. R is processed before P. Q is processed immediately after S. P is not processed last.\n\nWhich invoice is processed third?",["P","Q","R","S"],3,"The only order that meets every condition is R, P, S, Q."],
+["Verbal logic","Some analysts are managers. No manager is a trainee.\n\nWhich statement must be true?",["All analysts are managers","Some analysts are not trainees","No analyst is a trainee","Some trainees are analysts"],1,"The analysts who are managers cannot be trainees, so some analysts are not trainees. The other statements are not guaranteed."],
+["Verbal logic","Ada says: “Ben took the file.” Ben says: “Ada is lying.” Chipo says: “I did not take the file.” Exactly one of the three statements is true, and exactly one of them took the file.\n\nWho took it?",["Ada","Ben","Chipo","Cannot be determined"],2,"If Ada took it, Ben’s and Chipo’s statements are both true. If Ben took it, Ada’s and Chipo’s are both true. Only if Chipo took it is exactly one statement (Ben’s) true."],
+["Pattern recognition","Which number does not belong?\n16, 25, 36, 48, 49",["16","25","36","48","49"],3,"All the others are perfect squares. 48 is not."],
+["Pattern recognition","B, D, G, K, P, ?",["U","V","W","X"],1,"Letter positions rise by 2, 3, 4, 5, so add 6: P (16) becomes V (22)."],
+["Pattern recognition","Which figure comes next in the series?",["~a,f,0,2","~a,f,90,2","~a,f,180,2","~a,f,270,2"],3,"The arrow turns 90° clockwise at each step, so after 180° comes 270°.",["a,f,0,2","a,f,90,2","a,f,180,2","?"]],
+["Pattern recognition","Which figure comes next in the series?",[O("c,f,0,1",3),O("c,f,0,1",5),O("c,f,0,1",4),O("s,f,0,1",4)],2,"One circle is added at each step, so the fourth figure has four circles.",[X("c,f,0,1",1),X("c,f,0,1",2),X("c,f,0,1",3),"?"]],
+["Pattern recognition","Which figure completes the grid?",["~t,o,0,2","~t,g,0,1","~s,g,0,2","~t,g,0,2","~t,f,0,2","~c,g,0,2"],3,"Each row keeps one shape and one fill, and the shapes grow from left to right. The missing figure is a large grey triangle.",["c,f,0,0","c,f,0,1","c,f,0,2","s,o,0,0","s,o,0,1","s,o,0,2","t,g,0,0","t,g,0,1","?"]],
+["Pattern recognition","Which figure completes the grid?",["~t,g,0,1","~s,o,0,1","~s,g,0,1","~c,g,0,1","~s,f,0,1","~t,o,0,1"],2,"Each row contains every shape once and each column keeps one fill. Column three is grey and the row already has a triangle and a circle, so a grey square is missing.",["c,f,0,1","s,o,0,1","t,g,0,1","s,f,0,1","t,o,0,1","c,g,0,1","t,f,0,1","c,o,0,1","?"]],
+["Pattern recognition","Which figure comes next in the series?",["~t,o,0,2","~t,f,90,2","~t,f,0,2","~t,o,180,2"],2,"The triangle turns 90° clockwise each step while the fill alternates. After 270° (outline) comes a full turn back to 0° with a solid fill.",["t,f,0,2","t,o,90,2","t,f,180,2","t,o,270,2","?"]],
+["Pattern recognition","Which figure does not belong with the others?",["~c,f,0,1+s,o,0,1","~t,o,0,1+d,f,0,1","~d,o,0,1+c,f,0,1","~s,o,0,1+t,f,0,1","~s,f,0,1+t,f,0,1"],4,"Four figures pair one solid shape with one outline. The figure with two solid shapes is the odd one out."],
+["Pattern recognition","Which figure completes the grid?",[O("t,g,0,1",3),O("t,g,0,1",4),O("t,o,0,1",4),O("t,g,0,1",5),O("s,g,0,1",4),O("t,g,0,1",2)],1,"In each row the third cell holds as many shapes as the first two combined. Shape and fill stay fixed within a row, so the answer is four grey triangles.",[X("c,f,0,1",1),X("c,f,0,1",2),X("c,f,0,1",3),X("s,o,0,1",2),X("s,o,0,1",2),X("s,o,0,1",4),X("t,g,0,1",1),X("t,g,0,1",3),"?"]],
+["Pattern recognition","Which figure comes next in the series?",["~a,f,315,2","~a,f,180,2","~a,f,225,2","~a,f,90,2"],3,"The turn grows each step (45°, 90°, 135°), so the next turn is 180°. From 270° that gives 450°, the same as 90°.",["a,f,0,2","a,f,45,2","a,f,135,2","a,f,270,2","?"]],
+["Pattern recognition","Which figure completes the grid?",["~c,f,0,1+s,f,0,1+t,f,0,1","~c,f,0,1+t,f,0,1","~s,f,0,1","~s,f,0,1+t,f,0,1","~t,f,0,1","~c,f,0,1+s,f,0,1"],3,"In each row the third cell keeps only the shapes found in exactly one of the first two cells. Shared shapes cancel. In the last row the circle is shared, leaving the square and triangle.",["c,f,0,1","c,f,0,1+s,f,0,1","s,f,0,1","s,f,0,1+t,f,0,1","t,f,0,1","s,f,0,1","c,f,0,1+t,f,0,1","c,f,0,1+s,f,0,1","?"]],
+["Pattern recognition","Which figure comes next in the series?",["~s,o,0,2","~s,f,0,1","~s,o,0,1","~t,o,0,1","~s,o,0,0","~c,o,0,1"],2,"Three things cycle at different speeds: shape every three figures (circle, square, triangle), fill every two, and size through small, medium, large, medium. The eighth figure is a medium outline square.",["c,f,0,0","s,o,0,1","t,f,0,2","c,o,0,1","s,f,0,0","t,o,0,1","c,f,0,2","?"]],
+["Spatial reasoning","Which figure shows the original turned 90° clockwise?",["~l,f,270,2","~l,f,90,2","~l,f,180,2","~l,f,0,2,1"],1,"A quarter turn clockwise gives the second option. The others are the anticlockwise turn, the half turn and a mirror image.",["l,f,0,2"]],
+["Spatial reasoning","Which arrow shows the original turned through a half turn (180°)?",["~a,f,0,2","~a,f,90,2","~a,f,180,2","~a,f,270,2"],2,"A half turn reverses the arrow so it points the opposite way.",["a,f,0,2"]],
+["Spatial reasoning","Which figure is the original flipped left to right, as seen in a vertical mirror?",["~l,f,0,2,1","~l,f,180,2","~l,f,90,2","~l,f,0,2"],0,"A mirror reverses left and right, so the foot of the L points the other way. No rotation can produce this.",["l,f,0,2"]],
+["Spatial reasoning","On a standard die, opposite faces add up to 7. The top shows 2 and the front shows 3. What is on the bottom face?",["2","4","5","6"],2,"The bottom is opposite the top, and 7 − 2 = 5."],
+["Spatial reasoning","A 3×3×3 cube is painted on all outside faces and cut into 27 small cubes. How many small cubes have no paint at all?",["0","1","3","6"],1,"Only the single cube in the centre is fully enclosed."],
+["Spatial reasoning","A square sheet is folded in half twice. A single hole is then punched through every layer, clear of all the folds. How many holes appear when the sheet is unfolded?",["2","3","4","8"],2,"Two folds make four layers, so one punch makes four holes."],
+["Spatial reasoning","Which figure shows the original turned 90° anticlockwise?",["~l,f,90,2","~l,f,270,2","~l,f,180,2","~l,f,0,2,1"],1,"A quarter turn anticlockwise is the same as 270° clockwise.",["l,f,0,2"]],
+["Spatial reasoning","The same 3×3×3 cube is painted and cut into 27 small cubes. How many have paint on exactly one face?",["6","8","12","24"],0,"Exactly one painted face means the centre cube of each of the six faces."],
+["Spatial reasoning","How many of those 27 small cubes have paint on exactly two faces?",["8","12","6","24"],1,"These are the cubes in the middle of the 12 edges."],
+["Spatial reasoning","In a mirror, a clock appears to show 4:30. What is the real time?",["4:30","7:30","8:30","5:30"],1,"A mirror shows 12:00 minus the real time, so the real time is 12:00 − 4:30 = 7:30."],
+["Spatial reasoning","You face north, turn 135° clockwise, then 90° anticlockwise. Which way are you now facing?",["North-east","East","South-east","North"],0,"North plus 135° clockwise is south-east. Turning 90° anticlockwise from there gives north-east."],
+["Spatial reasoning","On a standard die, opposite faces add up to 7. Three faces meeting at one corner show 1, 2 and 3. What do the three faces at the opposite corner add up to?",["9","12","15","18"],2,"The opposite corner shows the opposite faces: 6, 5 and 4, which sum to 15."],
+["Spatial reasoning","A 4×4×4 cube is built from unit cubes and painted on the outside. How many unit cubes have at least one painted face?",["48","52","56","60"],2,"The unpainted core is 2×2×2 = 8 cubes, so 64 − 8 = 56 are painted."],
+["Spatial reasoning","Which figure shows the original flipped upside down (top to bottom)?",["~l,f,180,2,1","~l,f,180,2","~l,f,0,2,1","~l,f,90,2"],0,"The stem stays on the left and the foot moves to the top, still pointing right. A half turn would put the stem on the right instead.",["l,f,0,2"]],
+["Spatial reasoning","The figure is turned 90° clockwise and then flipped left to right. Which option shows the result?",["~l,f,90,2,1","~l,f,270,2,1","~l,f,270,2","~l,f,180,2,1"],1,"Turning first and flipping second gives the second option. Flipping first and then turning would give a different figure.",["l,f,0,2"]],
+["Spatial reasoning","A 4×4×4 cube is painted on the outside and cut into 64 unit cubes. How many have paint on exactly two faces?",["12","16","24","32"],2,"Each of the 12 edges has 4 − 2 = 2 such cubes, so 12 × 2 = 24."],
+["Spatial reasoning","A 5×5×5 cube is painted on the outside and cut into 125 unit cubes. How many have paint on exactly one face?",["36","54","60","96"],1,"Each face has a 3×3 block of cubes clear of the edges, so 6 × 9 = 54."],
+["Spatial reasoning","You face east, turn 270° anticlockwise, then 45° clockwise. Which way are you now facing?",["South","South-west","West","North-west"],1,"East turned 270° anticlockwise points south. A further 45° clockwise gives south-west."],
+["Spatial reasoning","A figure made of an L and a triangle is turned through 180°. Which option shows the result?",["~t,f,180,1+l,f,180,1","~l,f,180,1+t,f,180,1","~t,f,0,1+l,f,180,1","~l,f,0,1+t,f,180,1"],0,"A half turn of the whole figure swaps the positions of the two shapes as well as turning each one upside down.",["l,f,0,1+t,f,0,1"]],
+["Spatial reasoning","Which figure comes next in the series?",["~l,f,0,2","~l,f,0,2,1","~l,f,90,2","~l,f,270,2,1","~l,f,180,2"],0,"Each step turns the figure 90° clockwise, and every second step it is also flipped left to right. The fifth figure returns to the original.",["l,f,0,2","l,f,90,2","l,f,180,2,1","l,f,270,2,1","?"]]
+];
+Q.forEach(function(q){var p=q[2].map(function(_,i){return i}),i,j,t;for(i=p.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=p[i];p[i]=p[j];p[j]=t}q[3]=p.indexOf(q[3]);q[2]=p.map(function(i){return q[2][i]})});
+var SECS=["Number series","Applied numeracy","Verbal logic","Pattern recognition","Spatial reasoning"],LIMIT=55*60,L="ABCDEF",DIFF=[1,1,1,2,2,2,2,2,3,3, 1,2,2,1,1,2,2,3,3, 1,2,1,2,1,1,2,2,3, 1,2,1,1,1,2,2,2,3,3,3,3, 1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,3];
+var app=document.getElementById("app"),ans,cur,endAt,tm,who="",startedAt,usedSec;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fmt(s){s=Math.max(0,s);return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2)}
+function today(){return new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}
+
+function intro(){
+  clearInterval(tm);
+  app.innerHTML='<div class="stack"><h1>Reasoning test</h1>'+
+  '<p class="muted">Sixty questions covering numerical reasoning, logical deduction, visual pattern recognition and spatial reasoning. You have 55 minutes in total, and the clock starts when you press Start.</p>'+
+  '<div class="card stack"><p style="margin:0">Each correct answer scores one mark and wrong answers cost nothing, so answer every question. Move between questions freely, and leave hard ones for later. No calculators, but rough paper is fine.</p>'+
+  '<div><label class="f" for="nm">Name (optional)</label><input id="nm" type="text" autocomplete="name"></div>'+
+  '<p class="legend" style="margin:0">Answers stay in this browser page and nothing is sent anywhere. This is an original practice and development exercise, not a validated or standardised test, so it should not be used for selection decisions.</p>'+
+  '<div><button class="btn" id="go">Start the test</button></div></div></div>';
+  document.getElementById("go").onclick=function(){who=document.getElementById("nm").value.trim();ans=new Array(Q.length).fill(-1);cur=0;startedAt=Date.now();endAt=startedAt+LIMIT*1000;tm=setInterval(tick,500);render()};
+}
+function tick(){
+  var left=Math.round((endAt-Date.now())/1000),t=document.getElementById("tm");
+  if(left<=0){finish();return}
+  if(t){t.textContent=fmt(left);t.className="timer"+(left<=120?" low":"")}
+}
+function render(){
+  var q=Q[cur],o="",n="",done=ans.filter(function(a){return a>=0}).length;
+  var vo=q[2][0].charAt(0)==="~";q[2].forEach(function(t,i){o+='<button type="button" data-i="'+i+'" aria-pressed="'+(ans[cur]===i)+'" aria-label="Option '+L[i]+'"><b>'+L[i]+'</b>'+(vo?vis(t.slice(1)):'<span>'+esc(t)+'</span>')+'</button>'});
+  for(var k=0;k<Q.length;k++)n+='<button type="button" data-k="'+k+'" class="'+(ans[k]>=0?"a ":"")+(k===cur?"c":"")+'" aria-label="Question '+(k+1)+(ans[k]>=0?", answered":"")+'">'+(k+1)+'</button>';
+  app.innerHTML='<div class="stack"><div class="row"><strong>Question '+(cur+1)+' of '+Q.length+'</strong><span class="timer" id="tm">'+fmt(Math.round((endAt-Date.now())/1000))+'</span></div>'+
+  '<div class="card"><div class="sec">'+q[0]+'</div><div class="qt">'+esc(q[1])+'</div>'+(q[5]?figH(q[5]):'')+'<div class="opts'+(vo?' v':'')+'" role="group" aria-label="Answer options">'+o+'</div></div>'+
+  '<div class="row"><button class="btn ghost" id="pv"'+(cur===0?" disabled":"")+'>Previous</button><button class="btn" id="nx"'+(cur===Q.length-1?" disabled":"")+'>Next</button></div>'+
+  '<div class="nav" aria-label="Question navigator">'+n+'</div>'+
+  '<div class="row"><span class="legend">'+done+' of '+Q.length+' answered</span><button class="btn ghost" id="fin">Finish test</button></div><div class="err" id="err" role="alert"></div></div>';
+  tick();
+  var ob=app.querySelectorAll(".opts button");
+  for(var b=0;b<ob.length;b++)ob[b].onclick=function(){ans[cur]=+this.dataset.i;render()};
+  var nb=app.querySelectorAll(".nav button");
+  for(var c=0;c<nb.length;c++)nb[c].onclick=function(){cur=+this.dataset.k;render()};
+  document.getElementById("pv").onclick=function(){cur--;render()};
+  document.getElementById("nx").onclick=function(){cur++;render()};
+  var armed=false;
+  document.getElementById("fin").onclick=function(){
+    var un=Q.length-done;
+    if(un>0&&!armed){armed=true;document.getElementById("err").textContent=un+" unanswered. Press Finish test again to submit anyway.";return}
+    finish()};
+}
+function finish(){
+  if(!tm&&usedSec!==undefined)return;
+  clearInterval(tm);tm=null;usedSec=Math.min(LIMIT,Math.round((Date.now()-startedAt)/1000));results();window.scrollTo(0,0)
+}
+function results(){
+  var tot=0,by={},rv="",dd={1:[0,0],2:[0,0],3:[0,0]};
+  SECS.forEach(function(s){by[s]=[0,0]});
+  Q.forEach(function(q,i){by[q[0]][1]++;dd[DIFF[i]][1]++;var ok=ans[i]===q[3];if(ok){tot++;by[q[0]][0]++;dd[DIFF[i]][0]++}
+    rv+='<div class="rv"><p class="legend">Question '+(i+1)+' · '+q[0]+'</p><p>'+esc(q[1]).replace(/\n+/g," ")+'</p>'+(q[5]?figH(q[5]):'')+(q[2][0].charAt(0)==="~"?optsH(q):'')+
+    '<p>'+(ok?'<span class="ok">Correct</span>':'<span class="bad">'+(ans[i]<0?'Not answered':'Incorrect')+'</span>')+
+    ' · Your answer: '+(ans[i]<0?'none':T(q,ans[i]))+(ok?'':' · Correct answer: '+T(q,q[3]))+'</p><p class="legend">'+esc(q[4])+'</p></div>'});
+  var pct=Math.round(tot/Q.length*100),lvl=tot>=42?"Strong":tot>=22?"Solid":"Developing",dh="";[1,2,3].forEach(function(k){var a=dd[k];dh+='<div class="sr"><div class="row"><strong>'+["Easier","Medium","Harder"][k-1]+'</strong><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+(a[0]/a[1]*100)+'%"></i></div></div>'});
+  var sh="";SECS.forEach(function(s){var a=by[s];sh+='<div class="sr"><div class="row"><strong>'+s+'</strong><span>'+a[0]+' / '+a[1]+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+(a[0]/a[1]*100)+'%"></i></div></div>'});
+  app.innerHTML='<div class="stack"><h1>Your results</h1><p class="muted">'+(who?esc(who)+' · ':'')+today()+' · Time used '+fmt(usedSec)+' of '+fmt(LIMIT)+'</p>'+
+  '<div class="card"><div class="big">'+tot+' <span class="muted" style="font-size:1.3rem">/ '+Q.length+'</span></div><p style="margin:8px 0 0">'+pct+'% correct. Overall band: <strong>'+lvl+'</strong>.</p></div>'+
+  '<div class="card"><h2 style="margin-bottom:8px">By reasoning type</h2>'+sh+'</div><div class="card"><h2 style="margin-bottom:8px">By question difficulty</h2>'+dh+'</div>'+
+  '<p class="legend">Bands are rough guides (0 to 21 Developing, 22 to 41 Solid, 42 to 60 Strong) and are not measured against population norms. This is not an IQ score. Questions range from easier to harder, so the breakdown by difficulty and by reasoning type says more than the total.</p>'+
+  '<div class="card"><h2 style="margin-bottom:4px">Answer review</h2>'+rv+'</div>'+
+  '<div class="row no-print"><button class="btn ghost" id="rt">Retake</button><span><button class="btn ghost" id="cp">Copy summary</button> <button class="btn" id="pr">Print or save as PDF</button></span></div><p class="legend" id="msg" role="status"></p></div>';
+  document.getElementById("pr").onclick=function(){window.print()};
+  document.getElementById("rt").onclick=function(){usedSec=undefined;intro();window.scrollTo(0,0)};
+  document.getElementById("cp").onclick=function(){
+    var t="Reasoning test"+(who?" – "+who:"")+" – "+today()+"\nTotal: "+tot+"/"+Q.length+" ("+pct+"%, "+lvl+")\n"+SECS.map(function(s){return s+": "+by[s][0]+"/"+by[s][1]}).join("\n")+"\nBy difficulty: "+[1,2,3].map(function(k){return ["Easier","Medium","Harder"][k-1]+" "+dd[k][0]+"/"+dd[k][1]}).join(", ")+"\nTime used: "+fmt(usedSec);
+    var m=document.getElementById("msg"),bad=function(){m.textContent="Copying was blocked. Use Print or save as PDF instead."};
+    try{navigator.clipboard.writeText(t).then(function(){m.textContent="Summary copied."},bad)}catch(e){bad()}
+  };
+}
+intro();
+})();
+</script>
+</body>
+</html>
