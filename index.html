@@ -376,19 +376,20 @@ function intro(){
     '<h1>Ready to give your brain a good workout?</h1>'+
     '<p class="intro-copy">Welcome to the office brain games. A bit of logic, a splash of numbers, a few visual puzzles and a healthy dose of “wait… let me think”. No pressure, just you, your brain and 60 chances to surprise yourself.</p>'+
     '<div class="intro-tags"><span>🧠 Think sharp</span><span>⚡ Trust your instincts</span><span>🎯 Have a go</span><span>☕ Best enjoyed with a coffee</span></div>'+
-    '<div class="result-actions"><button class="btn" id="go">Let’s get this brain party started →</button><button class="btn ghost" id="showLeague">🏆 View the Brain League</button></div>'+
+    '<div class="result-actions"><button class="btn ghost" id="showLeague">🏆 View the Brain League</button></div>'+
   '</section>'+
   '<div class="intro-bottom">'+
     '<div class="card stack"><h2>How to play</h2>'+
       '<p>60 questions across numerical reasoning, logical deduction, pattern recognition and spatial reasoning. You have <strong>55 minutes</strong>, but take a breath and think things through.</p>'+
       '<p>Every correct answer earns a point. Wrong answers do not lose marks, so have a go at everything. You can jump between questions, revisit answers and leave the tricky ones for later.</p>'+
-      '<div class="name-wrap"><label class="f" for="nm">What should we call you? <span class="muted">(required)</span></label><input id="nm" type="text" autocomplete="nickname" placeholder="Your name or nickname" required aria-required="true" aria-describedby="nmErr"><div class="err" id="nmErr" role="alert" aria-live="polite"></div></div>'+
+      '<div class="name-wrap"><label class="f" for="nm">What should we call you? <span class="muted">(required)</span></label><input id="nm" type="text" autocomplete="nickname" placeholder="Your name or nickname" required aria-required="true" aria-describedby="nmErr"><div class="err" id="nmErr" role="alert" aria-live="polite"></div><button class="btn" id="go" type="button" disabled style="margin-top:12px">Let’s get this brain party started →</button></div>'+
       '<p class="legend" style="margin:0">Your nickname and completed-attempt summary are recorded for the Brain League. This is a fun reasoning challenge, not a validated or standardised assessment, and should not be used for recruitment or selection decisions.</p>'+
     '</div>'+
     '<aside class="intro-note"><strong>THE ONLY RULE?</strong><p>Enjoy it. Some questions will feel easy, others might make you question your life choices. That is all part of the fun.</p><p class="legend">Take your time, trust your thinking and enjoy the challenge. Rough paper is welcome. And remember, it is a game, not a verdict on your intelligence.</p></aside>'+
   '</div></div>';
   var nameInput=document.getElementById("nm"),nameError=document.getElementById("nmErr"),startButton=document.getElementById("go");
-  nameInput.value=PLAYER.nickname||"";
+  nameInput.value=(PLAYER.nickname&&PLAYER.nickname.trim().toLowerCase()!=="anonymous player")?PLAYER.nickname:"";
+  startButton.disabled=!nameInput.value.trim();
   function startTest(){
     var nickname=nameInput.value.trim();
     if(!nickname){
@@ -403,7 +404,9 @@ function intro(){
   }
   startButton.onclick=startTest;
   nameInput.addEventListener("input",function(){
-    if(nameInput.value.trim()){
+    var hasNickname=!!nameInput.value.trim();
+    startButton.disabled=!hasNickname;
+    if(hasNickname){
       nameError.textContent="";
       nameInput.removeAttribute("aria-invalid");
     }
